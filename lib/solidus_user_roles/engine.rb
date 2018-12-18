@@ -21,12 +21,20 @@ module SolidusUserRoles
       end
     end
 
+    def self.database_exists?
+      ActiveRecord::Base.connection
+    rescue ActiveRecord::NoDatabaseError
+      false
+    else
+      true
+    end
 
     def self.activate
       Dir.glob(File.join(File.dirname(__FILE__), '../../app/**/*_decorator*.rb')) do |c|
         Rails.configuration.cache_classes ? require(c) : load(c)
       end
-      unless Rails.env == 'test'
+
+      if !Rails.env.test? && database_exists?
         SolidusUserRoles::Engine.load_custom_permissions
       end
     end
