@@ -1,7 +1,8 @@
 module SolidusUserRoles
   class Engine < Rails::Engine
+    include SolidusSupport::EngineExtensions::Decorators
+
     engine_name 'solidus_user_roles'
-    config.autoload_paths += %W(#{config.root}/lib)
 
     config.generators do |g|
       g.test_framework :rspec
@@ -30,10 +31,6 @@ module SolidusUserRoles
     end
 
     def self.activate
-      Dir.glob(File.join(File.dirname(__FILE__), '../../app/**/*_decorator*.rb')) do |c|
-        Rails.configuration.cache_classes ? require(c) : load(c)
-      end
-
       if !Rails.env.test? && database_exists?
         SolidusUserRoles::Engine.load_custom_permissions
       end
