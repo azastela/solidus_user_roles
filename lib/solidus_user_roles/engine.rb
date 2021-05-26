@@ -1,6 +1,6 @@
 module SolidusUserRoles
   class Engine < Rails::Engine
-    include SolidusSupport::EngineExtensions::Decorators
+    include SolidusSupport::EngineExtensions
 
     engine_name 'solidus_user_roles'
 
@@ -9,9 +9,9 @@ module SolidusUserRoles
     end
 
     def self.load_custom_permissions
-      if ActiveRecord::Base.connection.tables.include?('spree_roles')
+      if ::ActiveRecord::Base.connection.tables.include?('spree_roles')
         ::Spree::Role.non_base_roles.each do |role|
-          if SolidusSupport.solidus_gem_version < Gem::Version.new('2.5.x')
+          if ::Spree.solidus_gem_version < Gem::Version.new('2.5.x')
             ::Spree::RoleConfiguration.configure do |config|
               config.assign_permissions role.name, role.permission_sets_constantized
             end
@@ -30,12 +30,12 @@ module SolidusUserRoles
       true
     end
 
-    def self.activate
+    def self.setup_user_roles
       if !Rails.env.test? && database_exists?
         SolidusUserRoles::Engine.load_custom_permissions
       end
     end
 
-    config.to_prepare &method(:activate).to_proc
+    config.to_prepare &method(:setup_user_roles).to_proc
   end
 end
