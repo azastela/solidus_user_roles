@@ -30,12 +30,12 @@ module SolidusUserRoles
       true
     end
 
-    def self.setup_user_roles
+    def self.setup_user_roles(*)
       if !Rails.env.test? && database_exists?
         SolidusUserRoles::Engine.load_custom_permissions
       end
     end
 
-    config.to_prepare &method(:setup_user_roles).to_proc
+    config.after_initialize &method(:setup_user_roles).to_proc
   end
 end
